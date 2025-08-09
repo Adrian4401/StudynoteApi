@@ -1,4 +1,4 @@
-const { DataTypes } = require('sequelize')
+const { DataTypes, Model } = require('sequelize')
 const sequelize = require('../config/database')
 
 const Note = sequelize.define('Note', {
@@ -8,3 +8,5 @@ const Note = sequelize.define('Note', {
     },
     body: DataTypes.TEXT
 })
+
+module.exports = Note

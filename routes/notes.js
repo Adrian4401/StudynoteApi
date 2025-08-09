@@ -1,10 +1,11 @@
 const express = require('express')
 const router = express.Router()
 
-const { getAllNotes, getNote } = require('../controllers/noteController')
+const { getAllNotes, getNote, addNote } = require('../controllers/noteController')
 
 router.get('/', getAllNotes)
 router.get('/:id', getNote)
+router.post('/', addNote)
 
 /** 
 * @swagger

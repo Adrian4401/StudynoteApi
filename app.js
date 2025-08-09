@@ -12,10 +12,10 @@ require('./models/note')
 
 sequelize.sync()
     .then(() => {
-        console.log('Database & tables created!')
+        console.log('[INFO] Database connected & tables created!')
     })
     .catch((error) => {
-        console.log('[ERROR]: Syncing database: ', error)
+        console.log('[ERROR] Syncing database: ', error)
     })
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs))
