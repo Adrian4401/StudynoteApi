@@ -76,5 +76,51 @@ router.post('/', addNote)
  *         description: Server error
  */
 
+/**
+* @swagger
+* /notes:
+*   post:
+*     summary: Create a new note
+*     description: Creates a new note in the database with a title and body.
+*     requestBody:
+*       required: true
+*       content:
+*         application/json:
+*           schema:
+*             type: object
+*             required:
+*               - title
+*               - body
+*             properties:
+*               title:
+*                 type: string
+*                 example: "Meeting notes"
+*               body:
+*                 type: string
+*                 example: "Discussed project deadlines and assigned tasks."
+*     responses:
+*       201:
+*         description: Note successfully created
+*         content:
+*           application/json:
+*             schema:
+*               type: object
+*               properties:
+*                 id:
+*                   type: integer
+*                   example: 1
+*                 title:
+*                   type: string
+*                   example: "Meeting notes"
+*                 body:
+*                   type: string
+*                   example: "Discussed project deadlines and assigned tasks."
+*       400:
+*         description: Missing required fields (title or body)
+*       500:
+*         description: Server error while creating note
+*/
+
+
 
 module.exports = router

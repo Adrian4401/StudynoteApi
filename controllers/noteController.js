@@ -11,7 +11,7 @@ const getAllNotes = async (req, res) => {
 
         res.status(200).json(response)
     } catch (error) {
-        res.status(500).json({ message: '[ERROR]', error: error.message })
+        res.status(500).json({ message: `[ERROR] ${error.message}` })
     }
 }
 
@@ -27,7 +27,7 @@ const getNote = async (req, res) => {
 
         res.status(200).json(response)
     } catch (error) {
-        res.status(500).json({ message: '[ERROR]', error: error.message })
+        res.status(500).json({ message: `[ERROR] ${error.message}` })
     }
 }
 
@@ -35,14 +35,14 @@ const addNote = async (req, res) => {
     const { title, body } = req.body
 
     if(!title || !body) {
-        return res.status(400).json({ message: 'Title and body are required!' })
+        return res.status(400).json({ message: '[FAILED] Title and body are required!' })
     } 
 
     try {
         const newNote = await Note.create({ title, body })
         res.status(201).json(newNote)
     } catch (error) {
-        res.status(500).json({ message: '[ERROR]', error: error.message })
+        res.status(500).json({ message: `[ERROR] ${error.message}` })
     }
 }
 
