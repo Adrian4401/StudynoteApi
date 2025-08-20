@@ -6,11 +6,13 @@ const sequelize = require('./config/database')
 const PORT = 8080
 const noteRoutes = require('./routes/notes')
 const authRoutes = require('./routes/auth')
+const subjectRoutes = require('./routes/subjects')
 
 const app = express()
 
 require('./models/note')
-require('./models/user')
+require('./models/auth')
+require('./models/subject')
 
 sequelize.sync()
     .then(() => {
@@ -26,6 +28,7 @@ console.log(swaggerDocs)
 app.use(express.json())
 app.use('/notes', noteRoutes)
 app.use('/auth', authRoutes)
+app.use('/subject', subjectRoutes)
 
 app.listen(PORT, () => {
     console.log('Server is running on port 8080!')

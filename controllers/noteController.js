@@ -1,15 +1,14 @@
 const Note = require('../models/note')
 
 const getAllNotes = async (req, res) => {
-    try 
-    {
-        const response = await Note.findAll()
+    try {
+        const data = await Note.findAll()
 
-        if(!response || response.length === 0) {
+        if(!data || data.length === 0) {
             return res.status(200).json([])
         }
 
-        res.status(200).json(response)
+        res.status(200).json(data)
     } catch (error) {
         res.status(500).json({ message: `[ERROR] ${error.message}` })
     }
@@ -19,13 +18,13 @@ const getNote = async (req, res) => {
     const { id } = req.params
 
     try {
-        const response = await Note.findByPk(id)
+        const data = await Note.findByPk(id)
 
-        if(!response.id) {
+        if(!data.id) {
             return res.status(404).json({ message: 'Note not found' })
         }
 
-        res.status(200).json(response)
+        res.status(200).json(data)
     } catch (error) {
         res.status(500).json({ message: `[ERROR] ${error.message}` })
     }
