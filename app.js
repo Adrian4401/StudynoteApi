@@ -28,7 +28,7 @@ console.log(swaggerDocs)
 app.use(express.json())
 app.use('/notes', noteRoutes)
 app.use('/auth', authRoutes)
-app.use('/subject', subjectRoutes)
+app.use('/subjects', subjectRoutes)
 
 app.listen(PORT, () => {
     console.log('Server is running on port 8080!')

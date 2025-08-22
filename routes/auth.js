@@ -6,6 +6,8 @@ const { register, login } = require('../controllers/authController')
 router.post('/register', register)
 router.post('/login', login)
 
+module.exports = router
+
 /**
 * @swagger
 * /auth/register:
@@ -102,5 +104,3 @@ router.post('/login', login)
 *       500:
 *         description: Server error
 */
-
-module.exports = router

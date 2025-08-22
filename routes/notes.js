@@ -7,6 +7,8 @@ router.get('/', getAllNotes)
 router.get('/:id', getNote)
 router.post('/', addNote)
 
+module.exports = router
+
 /** 
 * @swagger
 * /notes:
@@ -120,7 +122,3 @@ router.post('/', addNote)
 *       500:
 *         description: Server error while creating note
 */
-
-
-
-module.exports = router
