@@ -15,6 +15,11 @@ const Note = sequelize.define('Note', {
             model: 'Subjects',
             key: 'id'
         }
+    },
+    isDeleted: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
     }
 })
 

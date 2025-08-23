@@ -4,14 +4,15 @@ const swaggerDocs = require('./swagger/swaggerConfig')
 const sequelize = require('./config/database')
 
 const PORT = 8080
-const noteRoutes = require('./routes/notes')
 const authRoutes = require('./routes/auth')
+const userRoutes = require('./routes/users')
+const noteRoutes = require('./routes/notes')
 const subjectRoutes = require('./routes/subjects')
 
 const app = express()
 
 require('./models/note')
-require('./models/auth')
+require('./models/user')
 require('./models/subject')
 
 sequelize.sync()
@@ -26,8 +27,9 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs))
 console.log(swaggerDocs)
 
 app.use(express.json())
-app.use('/notes', noteRoutes)
 app.use('/auth', authRoutes)
+// app.use('/users', userRoutes)
+app.use('/notes', noteRoutes)
 app.use('/subjects', subjectRoutes)
 
 app.listen(PORT, () => {

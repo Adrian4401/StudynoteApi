@@ -1,4 +1,4 @@
-const User = require('../models/auth')
+const User = require('../models/user')
 const bcrypt = require('bcrypt')
 
 const register = async (req, res) => {
@@ -11,8 +11,11 @@ const register = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10)
 
     try {
-        const newUser = await User.create({ username, email, password: hashedPassword })
-        res.status(201).json(newUser)
+        const [newUser] = await User.create({ username, email, password: hashedPassword })
+
+        if (newUser === 0) return res.status(404).json({ message: `Cannot create user!` })
+
+        res.status(201).json({ message: `User ${username} created successfully!` })
     } catch (error) 
     {
         res.status(400).json({ message: `[ERROR] Cannot create new user => ${error.message}` })

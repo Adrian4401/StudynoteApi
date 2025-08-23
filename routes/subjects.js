@@ -12,7 +12,7 @@ const {
 router.get('/', getAllSubjects)
 router.get('/:id', getSubject)
 router.post('/', addSubject)
-router.patch('/', updateSubject)
+router.patch('/:id', updateSubject)
 router.delete('/:id', deleteSubject)
 
 module.exports = router
@@ -85,7 +85,7 @@ module.exports = router
 
 /**
  * @swagger
- * /subjects:
+ * /subjects/{id}:
  *   patch:
  *     summary: Update an existing subject
  *     requestBody:

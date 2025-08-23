@@ -40,7 +40,8 @@ const addSubject = async (req, res) => {
 }
 
 const updateSubject = async (req, res) => {
-    const { id, name } = req.body
+    const { id } = req.params
+    const { name } = req.body
 
     if (!name || name.length <= 0) return res.status(400).json({ message: 'Name is required!' })
 

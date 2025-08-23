@@ -1,11 +1,19 @@
 const express = require('express')
 const router = express.Router()
 
-const { getAllNotes, getNote, addNote } = require('../controllers/noteController')
+const { 
+    getAllNotes, 
+    getNote, 
+    addNote,
+    updateNote,
+    deleteNote
+} = require('../controllers/noteController')
 
 router.get('/', getAllNotes)
 router.get('/:id', getNote)
 router.post('/', addNote)
+router.patch('/:id', updateNote)
+router.delete('/:id', deleteNote)
 
 module.exports = router
 
@@ -121,4 +129,77 @@ module.exports = router
 *         description: Missing required fields (title or body)
 *       500:
 *         description: Server error while creating note
+*/
+
+/**
+* @swagger
+* /notes/{id}:
+*   patch:
+*     summary: Update an existing note
+*     description: Updates fields of an existing note. Requires the note ID in the request body along with fields to update.
+*     requestBody:
+*       required: true
+*       content:
+*         application/json:
+*           schema:
+*             type: object
+*             required:
+*               - id
+*             properties:
+*               id:
+*                 type: integer
+*                 example: 1
+*               title:
+*                 type: string
+*                 example: "Updated meeting notes"
+*               body:
+*                 type: string
+*                 example: "Updated content of the note"
+*     responses:
+*       200:
+*         description: Note successfully updated
+*         content:
+*           application/json:
+*             schema:
+*               type: object
+*               properties:
+*                 message:
+*                   type: string
+*                   example: "[INFO] Note updated"
+*       400:
+*         description: Missing required fields
+*       404:
+*         description: Note not found
+*       500:
+*         description: Server error while updating note
+*/
+
+/**
+* @swagger
+* /notes/{id}:
+*   delete:
+*     summary: Delete a note by ID
+*     description: Deletes a note from the database by its ID.
+*     parameters:
+*       - in: path
+*         name: id
+*         required: true
+*         schema:
+*           type: integer
+*         description: ID of the note to delete
+*     responses:
+*       200:
+*         description: Note successfully deleted
+*         content:
+*           application/json:
+*             schema:
+*               type: object
+*               properties:
+*                 message:
+*                   type: string
+*                   example: "[INFO] Note deleted"
+*       404:
+*         description: Note not found
+*       500:
+*         description: Server error while deleting note
 */
