@@ -1,4 +1,5 @@
 const express = require('express')
+require('dotenv').config()
 const swaggerUi = require('swagger-ui-express')
 const swaggerDocs = require('./swagger/swaggerConfig')
 const sequelize = require('./config/database')
@@ -28,7 +29,7 @@ console.log(swaggerDocs)
 
 app.use(express.json())
 app.use('/auth', authRoutes)
-// app.use('/users', userRoutes)
+app.use('/users', userRoutes)
 app.use('/notes', noteRoutes)
 app.use('/subjects', subjectRoutes)
 

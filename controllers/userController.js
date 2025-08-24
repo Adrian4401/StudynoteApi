@@ -1,5 +1,19 @@
 const User = require('../models/user')
 
+const getUser = async (req, res) => {
+    const { id } = req.params
+
+    try {
+        const data = await User.findByPk(id)
+
+        if (!data) return res.status(404).json({ message: `User not found` })
+
+        res.status(200).json(data)
+    } catch (error) {
+        res.status(500).json({ message: `[ERROR]: ${error.message}` })
+    }
+}
+
 const updateUser = async (req, res) => {
     const { id } = req.params
     const { username, email, password } = req.body
@@ -35,4 +49,4 @@ const deleteUser = async (req, res) => {
     }
 }
 
-module.exports = { updateUser, deleteUser }
+module.exports = { getUser, updateUser, deleteUser }
