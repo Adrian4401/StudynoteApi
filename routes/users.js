@@ -17,6 +17,47 @@ module.exports = router
 /**
  * @swagger
  * /users/{id}:
+ *   get:
+ *     summary: Get user by ID
+ *     description: Returns user data by ID. Requires authorization token.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID of the user to retrieve
+ *     responses:
+ *       200:
+ *         description: User data retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: integer
+ *                   example: 1
+ *                 username:
+ *                   type: string
+ *                   example: "johndoe"
+ *                 email:
+ *                   type: string
+ *                   example: "johndoe@example.com"
+ *                 isDeleted:
+ *                   type: boolean
+ *                   example: false
+ *       401:
+ *         description: Unauthorized - Missing or invalid token
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Server error
+ */
+
+/**
+ * @swagger
+ * /users/{id}:
  *   patch:
  *     summary: Update user data
  *     description: Updates the data of an existing user by ID.

@@ -1,6 +1,5 @@
 const { DataTypes } = require('sequelize')
 const sequelize = require('../config/database')
-const Subject = require('./subject')
 
 const Note = sequelize.define('Note', {
     title: {
@@ -8,6 +7,11 @@ const Note = sequelize.define('Note', {
         allowNull: false
     },
     body: DataTypes.TEXT,
+    isDeleted: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
+    },
     subjectId: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -16,11 +20,14 @@ const Note = sequelize.define('Note', {
             key: 'id'
         }
     },
-    isDeleted: {
-        type: DataTypes.BOOLEAN,
+    userId: {
+        type: DataTypes.INTEGER,
         allowNull: false,
-        defaultValue: false
-    }
+        references: {
+            model: 'Users',
+            key: 'id'
+        }
+    },
 })
 
 module.exports = Note
