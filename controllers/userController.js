@@ -1,10 +1,26 @@
 const User = require('../models/user')
 
+const getAllUsers = async (req, res) => {
+    try {
+        const data = await User.findAll({
+            where: { isDeleted: false }
+        })
+
+        if (!data || data.length === 0) return res.status(200).json([])
+
+        res.status(200).json(data)
+    } catch (error) {
+        res.status(500).json({ message: `[Error]: ${error.message}` })
+    }
+}
+
 const getUser = async (req, res) => {
     const { id } = req.params
 
     try {
-        const data = await User.findByPk(id)
+        const data = await User.findOne({
+            where: { id, isDeleted: false }
+        })
 
         if (!data) return res.status(404).json({ message: `User not found` })
 
@@ -36,7 +52,7 @@ const deleteUser = async (req, res) => {
     const { id } = req.params
 
     try {
-        const deletedCount = await User.update(
+        const [deletedCount] = await User.update(
             { isDeleted: true },
             { where: { id } }
         )
@@ -49,4 +65,4 @@ const deleteUser = async (req, res) => {
     }
 }
 
-module.exports = { getUser, updateUser, deleteUser }
+module.exports = { getAllUsers, getUser, updateUser, deleteUser }

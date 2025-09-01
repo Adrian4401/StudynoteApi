@@ -2,22 +2,23 @@ const { Note, Subject, User } = require('../models')
 
 const getAllNotes = async (req, res) => {
     try {
-        const data = await Note.findAll({ 
+        const data = await Note.findAll({
             include: [
                 {
-                    model: Subject,
-                    as: 'subject',
-                    attributes: ['name']
+                model: Subject,
+                as: 'subject',
+                attributes: ['name']
                 },
                 {
-                    model: User,
-                    as: 'user',
-                    attributes: ['username']
+                model: User,
+                as: 'user',
+                attributes: ['username']
                 }
-            ]
-        })
+            ],
+            where: { isDeleted: false },
+            })
 
-        if(!data || data.length === 0) return res.status(200).json([])
+        if (!data || data.length === 0) return res.status(200).json([])
 
         res.status(200).json(data)
     } catch (error) {
@@ -29,26 +30,24 @@ const getNote = async (req, res) => {
     const { id } = req.params
 
     try {
-        const data = await Note.findByPk(
-            id,
-            {
-                include: [
-                    {
-                        model: Subject,
-                        as: 'subject',
-                        attributes: ['name']
-                    },
-                    {
-                        model: User,
-                        as: 'user',
-                        attributes: ['username']
-                    }
-                ]
-            } 
-        )
+        const data = await Note.findOne({
+            include: [
+                {
+                    model: Subject,
+                    as: 'subject',
+                    attributes: ['name']
+                },
+                {
+                    model: User,
+                    as: 'user',
+                    attributes: ['username']
+                }
+            ],
+            where: { id, isDeleted: false }
+        })
 
-        if(!data.id) return res.status(404).json({ message: 'Note not found' })
-
+        if (!data) return res.status(404).json({ message: 'Note not found' })
+            
         res.status(200).json(data)
     } catch (error) {
         res.status(500).json({ message: `[ERROR] ${error.message}` })
@@ -58,7 +57,7 @@ const getNote = async (req, res) => {
 const addNote = async (req, res) => {
     const { title, body, subjectId, userId } = req.body
 
-    if(!title || !body) return res.status(400).json({ message: '[FAILED] Title and body are required!' })
+    if (!title || !body) return res.status(400).json({ message: '[FAILED] Title and body are required!' })
 
     try {
         const newNote = await Note.create({ title, body, subjectId, userId })
@@ -72,7 +71,7 @@ const updateNote = async (req, res) => {
     const { id } = req.params
     const { title, body, subjectId, userId } = req.body
 
-    if(!title || !body) return res.status(400).json({ message: '[FAILED] Title and body are required!' })
+    if (!title || !body) return res.status(400).json({ message: '[FAILED] Title and body are required!' })
 
     try {
         const [updatedCount] = await Note.update(
@@ -91,8 +90,13 @@ const updateNote = async (req, res) => {
 const deleteNote = async (req, res) => {
     const { id } = req.params
 
+    if (!id) return res.status(400).json({ message: '[FAILED] Note ID is required!' })
+
     try {
-        const deletedCount = await Note.destroy({ where: { id } })
+        const [deletedCount] = await Note.update(
+            { isDeleted: true },
+            { where: { id } }
+        )
 
         if (deletedCount === 0) return res.status(404).json({ message: `[WARN] Note not found` })
 

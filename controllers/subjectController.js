@@ -8,6 +8,7 @@ const getAllSubjects = async (req, res) => {
                 as: 'user',
                 attributes: ['username']
             }],
+            where: { isDeleted: false }
         })
 
         if (!data || data.length === 0) return res.status(200).json([])
@@ -22,18 +23,16 @@ const getSubject = async (req, res) => {
     const { id } = req.params
 
     try {
-        const data = await Subject.findByPk(
-            id,
-            {
-                include: [{
-                    model: User,
-                    as: 'user',
-                    attributes: ['username']
-                }],
-            }
-        )
+        const data = await Subject.findOne({
+            include: [{
+                model: User,
+                as: 'user',
+                attributes: ['username']
+            }],
+            where: { id, isDeleted: false }
+        })
 
-        if (!data.id) return res.status(404).json({ message: 'Subject not found' })
+        if (!data) return res.status(404).json({ message: 'Subject not found' })
 
         res.status(200).json(data)
     } catch (error) {
@@ -78,7 +77,10 @@ const deleteSubject = async (req, res) => {
     const { id } = req.params
 
     try {
-        const deletedCount = await Subject.destroy({ where: { id } })
+        const [deletedCount] = await Subject.update(
+            { isDeleted: true },
+            { where: { id } }
+        )
 
         if (deletedCount === 0) return res.status(404).json({ message: `[WARN] Subject not found` })
 
