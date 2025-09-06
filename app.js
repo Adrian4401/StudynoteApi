@@ -9,12 +9,15 @@ const authRoutes = require('./routes/auth')
 const userRoutes = require('./routes/users')
 const noteRoutes = require('./routes/notes')
 const subjectRoutes = require('./routes/subjects')
+const eventRoutes = require('./routes/events')
 
 const app = express()
 
 require('./models/note')
 require('./models/user')
 require('./models/subject')
+require('./models/event')
+require('./models/eventNote')
 
 sequelize.sync()
     .then(() => {
@@ -32,7 +35,8 @@ app.use('/auth', authRoutes)
 app.use('/users', userRoutes)
 app.use('/notes', noteRoutes)
 app.use('/subjects', subjectRoutes)
+app.use('/events', eventRoutes)
 
 app.listen(PORT, () => {
-    console.log('Server is running on port 8080!')
+    console.log('Server is running on port 8080! See http://localhost:8080/api-docs for API documentation.')
 })
