@@ -7,12 +7,44 @@ const getAllEvents = async (req, res) => {
                 {
                     model: Subject,
                     as: 'subject',
-                    attributes: ['name']
+                    attributes: ['id', 'name']
                 },
                 {
                     model: User,
                     as: 'user',
-                    attributes: ['username']
+                    attributes: ['id', 'username']
+                },
+            ],
+            where: { isDeleted: false },
+            })
+
+        if (!data || data.length === 0) return res.status(200).json([])
+
+        res.status(200).json(data)
+    } catch (error) {
+        res.status(500).json({ message: `[ERROR] ${error.message}` })
+    }
+}
+
+const getAllEventsWithNotes = async (req, res) => {
+    try {
+        const data = await Event.findAll({
+            include: [
+                {
+                    model: Subject,
+                    as: 'subject',
+                    attributes: ['id', 'name']
+                },
+                {
+                    model: User,
+                    as: 'user',
+                    attributes: ['id', 'username']
+                },
+                {
+                    model: Note,
+                    as: 'notes',
+                    attributes: ['id', 'title', 'body'],
+                    through: { attributes: [] }
                 }
             ],
             where: { isDeleted: false },
@@ -41,6 +73,12 @@ const getEvent = async (req, res) => {
                     model: User,
                     as: 'user',
                     attributes: ['username']
+                },
+                {
+                    model: Note,
+                    as: 'notes',
+                    attributes: ['id', 'title', 'body'],
+                    through: { attributes: [] }
                 }
             ],
             where: { id, isDeleted: false }
@@ -72,6 +110,29 @@ const createEvent = async (req, res) => {
     }
 }
 
+const editEvent = async (req, res) => {
+    const { id } = req.params
+    const { title, description, deadline, subjectId, userId, noteIds } = req.body
+
+    if (!id) return res.status(400).json({ message: '[FAILED] Event ID is required!' })
+
+    try {
+        const event = await Event.findOne({ where: { id } })
+
+        if (!event) return res.status(404).json({ message: '[WARN] Event not found' })
+
+        await event.update({ title, description, deadline, subjectId, userId })
+
+        if (Array.isArray(noteIds)) {
+            await event.setNotes(noteIds)
+        }
+
+        res.status(200).json(event)
+    } catch (error) {
+        res.status(500).json({ message: `[ERROR] ${error.message}` })
+    }
+}
+
 const deleteEvent = async (req, res) => {
     const { id } = req.params
 
@@ -91,4 +152,4 @@ const deleteEvent = async (req, res) => {
     }
 }
 
-module.exports = { getAllEvents, getEvent, createEvent, deleteEvent }
+module.exports = { getAllEvents, getAllEventsWithNotes, getEvent, createEvent, editEvent, deleteEvent }

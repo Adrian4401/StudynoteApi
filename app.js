@@ -21,7 +21,7 @@ require('./models/eventNote')
 
 sequelize.sync()
     .then(() => {
-        console.log('[INFO] Database connected & tables created!')
+        console.log('\n\n [INFO] Database connected & tables created! \n\n [INFO] Server is running on port 8080! See http://localhost:8080/api-docs for API documentation.')
     })
     .catch((error) => {
         console.log('[ERROR] Syncing database: ', error)
