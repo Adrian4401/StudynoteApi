@@ -44,10 +44,20 @@ module.exports = router
  *                   deadline:
  *                     type: string
  *                     format: date-time
- *                   subjectId:
- *                     type: integer
- *                   userId:
- *                     type: integer
+ *                   subject:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                       name:
+ *                         type: string
+ *                   user:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                       username:
+ *                         type: string
  *       500:
  *         description: Server error while fetching events
  */
@@ -77,18 +87,18 @@ module.exports = router
  *                   deadline:
  *                     type: string
  *                     format: date-time
- *                   subjectId:
- *                     type: integer
- *                   userId:
- *                     type: integer
  *                   subject:
  *                     type: object
  *                     properties:
+ *                       id:
+ *                         type: integer
  *                       name:
  *                         type: string
  *                   user:
  *                     type: object
  *                     properties:
+ *                       id:
+ *                         type: integer
  *                       username:
  *                         type: string
  *                   notes:
@@ -135,10 +145,27 @@ module.exports = router
  *                 deadline:
  *                   type: string
  *                   format: date-time
- *                 subjectId:
- *                   type: integer
- *                 userId:
- *                   type: integer
+ *                 subject:
+ *                   type: object
+ *                   properties:
+ *                     name:
+ *                       type: string
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                     username:
+ *                       type: string
+ *                 notes:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                       title:
+ *                         type: string
+ *                       body:
+ *                         type: string
  *       404:
  *         description: Event not found
  *       500:
@@ -166,19 +193,25 @@ module.exports = router
  *             properties:
  *               title:
  *                 type: string
+ *                 example: Math exam
  *               description:
  *                 type: string
+ *                 example: Final exam covering all topics
  *               deadline:
  *                 type: string
  *                 format: date-time
+ *                 example: 2025-09-20T12:00:00Z
  *               subjectId:
  *                 type: integer
+ *                 example: 1
  *               userId:
  *                 type: integer
+ *                 example: 1
  *               noteIds:
  *                 type: array
  *                 items:
  *                   type: integer
+ *                 example: [2, 4]
  *     responses:
  *       201:
  *         description: Event successfully created
@@ -189,17 +222,23 @@ module.exports = router
  *               properties:
  *                 id:
  *                   type: integer
+ *                   example: 15
  *                 title:
  *                   type: string
+ *                   example: Math exam
  *                 description:
  *                   type: string
+ *                   example: Final exam covering all topics
  *                 deadline:
  *                   type: string
  *                   format: date-time
+ *                   example: 2025-09-20T12:00:00Z
  *                 subjectId:
  *                   type: integer
+ *                   example: 1
  *                 userId:
  *                   type: integer
+ *                   example: 5
  *       400:
  *         description: Missing required fields
  *       500:
@@ -228,19 +267,25 @@ module.exports = router
  *             properties:
  *               title:
  *                 type: string
+ *                 example: Updated title
  *               description:
  *                 type: string
+ *                 example: Updated description
  *               deadline:
  *                 type: string
  *                 format: date-time
+ *                 example: 2025-09-21T10:00:00Z
  *               subjectId:
  *                 type: integer
+ *                 example: 2
  *               userId:
  *                 type: integer
+ *                 example: 7
  *               noteIds:
  *                 type: array
  *                 items:
  *                   type: integer
+ *                 example: [1, 3]
  *     responses:
  *       200:
  *         description: Event successfully updated
@@ -249,8 +294,25 @@ module.exports = router
  *             schema:
  *               type: object
  *               properties:
- *                 message:
+ *                 id:
+ *                   type: integer
+ *                   example: 15
+ *                 title:
  *                   type: string
+ *                   example: Updated title
+ *                 description:
+ *                   type: string
+ *                   example: Updated description
+ *                 deadline:
+ *                   type: string
+ *                   format: date-time
+ *                   example: 2025-09-21T10:00:00Z
+ *                 subjectId:
+ *                   type: integer
+ *                   example: 2
+ *                 userId:
+ *                   type: integer
+ *                   example: 7
  *       400:
  *         description: Missing or invalid fields
  *       404:
@@ -264,7 +326,7 @@ module.exports = router
  * /events/{id}:
  *   delete:
  *     summary: Delete an event by ID
- *     description: Deletes an event from the database by its ID.
+ *     description: Marks an event as deleted in the database by its ID.
  *     parameters:
  *       - in: path
  *         name: id
@@ -282,6 +344,7 @@ module.exports = router
  *               properties:
  *                 message:
  *                   type: string
+ *                   example: "[INFO] Event deleted"
  *       404:
  *         description: Event not found
  *       500:

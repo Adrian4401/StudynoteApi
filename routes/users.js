@@ -18,10 +18,48 @@ module.exports = router
 
 /**
  * @swagger
+ * /users:
+ *   get:
+ *     summary: Retrieve all users
+ *     description: Fetches a list of all users. Requires authorization token.
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: A list of users
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: integer
+ *                     example: 1
+ *                   username:
+ *                     type: string
+ *                     example: "johndoe"
+ *                   email:
+ *                     type: string
+ *                     example: "johndoe@example.com"
+ *                   isDeleted:
+ *                     type: boolean
+ *                     example: false
+ *       401:
+ *         description: Unauthorized - Missing or invalid token
+ *       500:
+ *         description: Server error
+ */
+
+/**
+ * @swagger
  * /users/{id}:
  *   get:
  *     summary: Get user by ID
  *     description: Returns user data by ID. Requires authorization token.
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -62,7 +100,9 @@ module.exports = router
  * /users/{id}:
  *   patch:
  *     summary: Update user data
- *     description: Updates the data of an existing user by ID.
+ *     description: Updates the data of an existing user by ID. Requires authorization token.
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -108,7 +148,9 @@ module.exports = router
  * /users/{id}:
  *   delete:
  *     summary: Delete a user by ID
- *     description: Soft deletes a user by setting `isDeleted` to true.
+ *     description: Soft deletes a user by setting `isDeleted` to true. Requires authorization token.
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -131,4 +173,14 @@ module.exports = router
  *         description: User not found
  *       500:
  *         description: Server error
+ */
+
+/**
+ * @swagger
+ * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
  */
