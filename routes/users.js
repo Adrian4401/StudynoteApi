@@ -10,9 +10,9 @@ const {
 } = require('../controllers/userController')
 
 router.get('/', authMiddleware, getAllUsers)
-router.get('/:id', authMiddleware, getUser)
-router.patch('/:id', authMiddleware, updateUser)
-router.delete('/:id', authMiddleware, deleteUser)
+router.get('/me', authMiddleware, getUser)
+router.patch('/', authMiddleware, updateUser)
+router.delete('/', authMiddleware, deleteUser)
 
 module.exports = router
 
@@ -54,19 +54,12 @@ module.exports = router
 
 /**
  * @swagger
- * /users/{id}:
+ * /users/me:
  *   get:
- *     summary: Get user by ID
+ *     summary: Get logged user data
  *     description: Returns user data by ID. Requires authorization token.
  *     security:
  *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *         description: ID of the user to retrieve
  *     responses:
  *       200:
  *         description: User data retrieved successfully
@@ -97,19 +90,12 @@ module.exports = router
 
 /**
  * @swagger
- * /users/{id}:
+ * /users:
  *   patch:
- *     summary: Update user data
+ *     summary: Update logged in user data
  *     description: Updates the data of an existing user by ID. Requires authorization token.
  *     security:
  *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *         description: ID of the user to update
  *     requestBody:
  *       required: true
  *       content:
@@ -145,19 +131,12 @@ module.exports = router
 
 /**
  * @swagger
- * /users/{id}:
+ * /users:
  *   delete:
- *     summary: Delete a user by ID
+ *     summary: Delete logged in user
  *     description: Soft deletes a user by setting `isDeleted` to true. Requires authorization token.
  *     security:
  *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *         description: ID of the user to delete
  *     responses:
  *       200:
  *         description: User deleted successfully

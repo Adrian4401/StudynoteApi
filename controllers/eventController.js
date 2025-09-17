@@ -16,7 +16,7 @@ const getAllEvents = async (req, res) => {
                 },
             ],
             where: { isDeleted: false },
-            })
+        })
 
         if (!data || data.length === 0) return res.status(200).json([])
 
@@ -48,7 +48,7 @@ const getAllEventsWithNotes = async (req, res) => {
                 }
             ],
             where: { isDeleted: false },
-            })
+        })
 
         if (!data || data.length === 0) return res.status(200).json([])
 

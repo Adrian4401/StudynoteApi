@@ -15,11 +15,9 @@ const getAllUsers = async (req, res) => {
 }
 
 const getUser = async (req, res) => {
-    const { id } = req.params
-
     try {
         const data = await User.findOne({
-            where: { id, isDeleted: false }
+            where: { id: req.user.id, isDeleted: false }
         })
 
         if (!data) return res.status(404).json({ message: `User not found` })
@@ -31,13 +29,21 @@ const getUser = async (req, res) => {
 }
 
 const updateUser = async (req, res) => {
-    const { id } = req.params
     const { username, email, password } = req.body
 
     try {
+        const updates = {}
+        if (username !== undefined) updates.username = username
+        if (email !== undefined) updates.email = email
+        if (password !== undefined) updates.password = password
+
+        if (Object.keys(updates).length === 0) {
+            return res.status(400).json({ message: 'No fields provided for update' })
+        }
+
         const [updatedCount] = await User.update(
-            { username, email, password },
-            { where: { id } }
+            updates,
+            { where: { id: req.user.id } }
         )
 
         if (updatedCount === 0) return res.status(404).json({ message: `Failed to update account data` })
@@ -49,12 +55,10 @@ const updateUser = async (req, res) => {
 }
 
 const deleteUser = async (req, res) => {
-    const { id } = req.params
-
     try {
         const [deletedCount] = await User.update(
             { isDeleted: true },
-            { where: { id } }
+            { where: { id: req.user.id } }
         )
 
         if (deletedCount === 0) return res.status(404).json({ message: `Failed to delete account` })
