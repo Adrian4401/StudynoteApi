@@ -3,19 +3,18 @@ const router = express.Router()
 
 const { 
     getAllEvents,
-    getAllEventsWithNotes,
     getEvent,
     createEvent,
     editEvent,
     deleteEvent
 } = require('../controllers/eventController')
+const authMiddleware = require('../middleware/authMiddleware')
 
-router.get('/', getAllEvents)
-router.get('/with-notes', getAllEventsWithNotes)
-router.get('/:id', getEvent)
-router.post('/', createEvent)
-router.patch('/:id', editEvent)
-router.delete('/:id', deleteEvent)
+router.get('/', authMiddleware, getAllEvents)
+router.get('/:id', authMiddleware, getEvent)
+router.post('/', authMiddleware, createEvent)
+router.patch('/:id', authMiddleware, editEvent)
+router.delete('/:id', authMiddleware, deleteEvent)
 
 module.exports = router
 
@@ -25,6 +24,8 @@ module.exports = router
  *   get:
  *     summary: Retrieve all events
  *     description: Fetches a list of all events from the database.
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: A list of events
@@ -64,63 +65,11 @@ module.exports = router
 
 /**
  * @swagger
- * /events/with-notes:
- *   get:
- *     summary: Retrieve all events with their related notes
- *     description: Fetches a list of all events from the database, including assigned subject, user, and related notes.
- *     responses:
- *       200:
- *         description: A list of events with related notes
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   id:
- *                     type: integer
- *                   title:
- *                     type: string
- *                   description:
- *                     type: string
- *                   deadline:
- *                     type: string
- *                     format: date-time
- *                   subject:
- *                     type: object
- *                     properties:
- *                       id:
- *                         type: integer
- *                       name:
- *                         type: string
- *                   user:
- *                     type: object
- *                     properties:
- *                       id:
- *                         type: integer
- *                       username:
- *                         type: string
- *                   notes:
- *                     type: array
- *                     items:
- *                       type: object
- *                       properties:
- *                         id:
- *                           type: integer
- *                         title:
- *                           type: string
- *                         body:
- *                           type: string
- *       500:
- *         description: Server error while fetching events with notes
- */
-
-/**
- * @swagger
  * /events/{id}:
  *   get:
- *     summary: Get a single event by ID
+ *     summary: Get a single event by ID with related notes
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -178,6 +127,8 @@ module.exports = router
  *   post:
  *     summary: Create a new event
  *     description: Creates a new event with a title, description, deadline, subjectId, userId and optional noteIds.
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -251,6 +202,8 @@ module.exports = router
  *   patch:
  *     summary: Update an existing event
  *     description: Updates fields of an existing event. Requires the event ID in the path and at least one field to update.
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -327,6 +280,8 @@ module.exports = router
  *   delete:
  *     summary: Delete an event by ID
  *     description: Marks an event as deleted in the database by its ID.
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id

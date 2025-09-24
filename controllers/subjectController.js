@@ -8,7 +8,7 @@ const getAllSubjects = async (req, res) => {
                 as: 'user',
                 attributes: ['username']
             }],
-            where: { isDeleted: false }
+            where: { userId: req.user.id, isDeleted: false }
         })
 
         if (!data || data.length === 0) return res.status(200).json([])
@@ -29,7 +29,7 @@ const getSubject = async (req, res) => {
                 as: 'user',
                 attributes: ['username']
             }],
-            where: { id, isDeleted: false }
+            where: { id, userId: req.user.id, isDeleted: false }
         })
 
         if (!data) return res.status(404).json({ message: 'Subject not found' })
@@ -62,7 +62,7 @@ const updateSubject = async (req, res) => {
     try {
         const [updatedCount] = await Subject.update(
             { name },
-            { where: { id } }
+            { where: { id, userId: req.user.id } }
         )
 
         if (updatedCount === 0) return res.status(404).json({ message: `[WARN] Subject not found` })
@@ -79,7 +79,7 @@ const deleteSubject = async (req, res) => {
     try {
         const [deletedCount] = await Subject.update(
             { isDeleted: true },
-            { where: { id } }
+            { where: { id, userId: req.user.id } }
         )
 
         if (deletedCount === 0) return res.status(404).json({ message: `[WARN] Subject not found` })

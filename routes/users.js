@@ -3,58 +3,21 @@ const router = express.Router()
 const authMiddleware = require('../middleware/authMiddleware')
 
 const { 
-    getAllUsers,
     getUser,
     updateUser,
     deleteUser
 } = require('../controllers/userController')
 
-router.get('/', authMiddleware, getAllUsers)
-router.get('/me', authMiddleware, getUser)
+router.get('/', authMiddleware, getUser)
 router.patch('/', authMiddleware, updateUser)
 router.delete('/', authMiddleware, deleteUser)
 
 module.exports = router
 
-/**
- * @swagger
- * /users:
- *   get:
- *     summary: Retrieve all users
- *     description: Fetches a list of all users. Requires authorization token.
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: A list of users
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   id:
- *                     type: integer
- *                     example: 1
- *                   username:
- *                     type: string
- *                     example: "johndoe"
- *                   email:
- *                     type: string
- *                     example: "johndoe@example.com"
- *                   isDeleted:
- *                     type: boolean
- *                     example: false
- *       401:
- *         description: Unauthorized - Missing or invalid token
- *       500:
- *         description: Server error
- */
 
 /**
  * @swagger
- * /users/me:
+ * /users:
  *   get:
  *     summary: Get logged user data
  *     description: Returns user data by ID. Requires authorization token.

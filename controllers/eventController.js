@@ -15,39 +15,7 @@ const getAllEvents = async (req, res) => {
                     attributes: ['id', 'username']
                 },
             ],
-            where: { isDeleted: false },
-        })
-
-        if (!data || data.length === 0) return res.status(200).json([])
-
-        res.status(200).json(data)
-    } catch (error) {
-        res.status(500).json({ message: `[ERROR] ${error.message}` })
-    }
-}
-
-const getAllEventsWithNotes = async (req, res) => {
-    try {
-        const data = await Event.findAll({
-            include: [
-                {
-                    model: Subject,
-                    as: 'subject',
-                    attributes: ['id', 'name']
-                },
-                {
-                    model: User,
-                    as: 'user',
-                    attributes: ['id', 'username']
-                },
-                {
-                    model: Note,
-                    as: 'notes',
-                    attributes: ['id', 'title', 'body'],
-                    through: { attributes: [] }
-                }
-            ],
-            where: { isDeleted: false },
+            where: { userId: req.user.id, isDeleted: false },
         })
 
         if (!data || data.length === 0) return res.status(200).json([])
@@ -81,7 +49,7 @@ const getEvent = async (req, res) => {
                     through: { attributes: [] }
                 }
             ],
-            where: { id, isDeleted: false }
+            where: { id, userId: req.user.id, isDeleted: false }
         })
 
         if (!data) return res.status(404).json({ message: 'Event not found' })
@@ -117,7 +85,9 @@ const editEvent = async (req, res) => {
     if (!id) return res.status(400).json({ message: '[FAILED] Event ID is required!' })
 
     try {
-        const event = await Event.findOne({ where: { id } })
+        const event = await Event.findOne({ 
+            where: { id, userId: req.user.id } 
+        })
 
         if (!event) return res.status(404).json({ message: '[WARN] Event not found' })
 
@@ -141,7 +111,7 @@ const deleteEvent = async (req, res) => {
     try {
         const [deletedCount] = await Event.update(
             { isDeleted: true },
-            { where: { id } }
+            { where: { id, userId: req.user.id } }
         )
 
         if (deletedCount === 0) return res.status(404).json({ message: `[WARN] Event not found` })
@@ -152,4 +122,4 @@ const deleteEvent = async (req, res) => {
     }
 }
 
-module.exports = { getAllEvents, getAllEventsWithNotes, getEvent, createEvent, editEvent, deleteEvent }
+module.exports = { getAllEvents, getEvent, createEvent, editEvent, deleteEvent }

@@ -15,8 +15,8 @@ const getAllNotes = async (req, res) => {
                 attributes: ['username']
                 }
             ],
-            where: { isDeleted: false },
-            })
+            where: { userId: req.user.id, isDeleted: false },
+        })
 
         if (!data || data.length === 0) return res.status(200).json([])
 
@@ -43,7 +43,7 @@ const getNote = async (req, res) => {
                     attributes: ['username']
                 }
             ],
-            where: { id, isDeleted: false }
+            where: { id, userId: req.user.id, isDeleted: false }
         })
 
         if (!data) return res.status(404).json({ message: 'Note not found' })
@@ -76,7 +76,7 @@ const updateNote = async (req, res) => {
     try {
         const [updatedCount] = await Note.update(
             { title, body, subjectId, userId },
-            { where: { id } }
+            { where: { id, userId: req.user.id } }
         )
 
         if (updatedCount === 0) return res.status(404).json({ message: `[WARN] Note not found` })
@@ -95,7 +95,7 @@ const deleteNote = async (req, res) => {
     try {
         const [deletedCount] = await Note.update(
             { isDeleted: true },
-            { where: { id } }
+            { where: { id, userId: req.user.id } }
         )
 
         if (deletedCount === 0) return res.status(404).json({ message: `[WARN] Note not found` })

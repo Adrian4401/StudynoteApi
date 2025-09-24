@@ -1,19 +1,5 @@
 const User = require('../models/user')
 
-const getAllUsers = async (req, res) => {
-    try {
-        const data = await User.findAll({
-            where: { isDeleted: false }
-        })
-
-        if (!data || data.length === 0) return res.status(200).json([])
-
-        res.status(200).json(data)
-    } catch (error) {
-        res.status(500).json({ message: `[Error]: ${error.message}` })
-    }
-}
-
 const getUser = async (req, res) => {
     try {
         const data = await User.findOne({
@@ -69,4 +55,4 @@ const deleteUser = async (req, res) => {
     }
 }
 
-module.exports = { getAllUsers, getUser, updateUser, deleteUser }
+module.exports = { getUser, updateUser, deleteUser }

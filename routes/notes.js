@@ -8,12 +8,13 @@ const {
     updateNote,
     deleteNote
 } = require('../controllers/noteController')
+const authMiddleware = require('../middleware/authMiddleware')
 
-router.get('/', getAllNotes)
-router.get('/:id', getNote)
-router.post('/', addNote)
-router.patch('/:id', updateNote)
-router.delete('/:id', deleteNote)
+router.get('/', authMiddleware, getAllNotes)
+router.get('/:id', authMiddleware, getNote)
+router.post('/', authMiddleware, addNote)
+router.patch('/:id', authMiddleware, updateNote)
+router.delete('/:id', authMiddleware, deleteNote)
 
 module.exports = router
 
@@ -23,6 +24,8 @@ module.exports = router
  *   get:
  *     summary: Retrieve all notes
  *     description: Fetches all notes from the database with related subject and user.
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: A list of notes
@@ -58,6 +61,8 @@ module.exports = router
  * /notes/{id}:
  *   get:
  *     summary: Get a single note by ID
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -101,6 +106,8 @@ module.exports = router
  *   post:
  *     summary: Create a new note
  *     description: Creates a new note with title, body, subjectId and userId.
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -153,6 +160,8 @@ module.exports = router
  *   patch:
  *     summary: Update an existing note
  *     description: Updates fields of an existing note. Requires the note ID in the path.
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -204,6 +213,8 @@ module.exports = router
  *   delete:
  *     summary: Delete a note by ID
  *     description: Marks a note as deleted in the database by its ID.
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id

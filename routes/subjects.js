@@ -8,12 +8,13 @@ const {
     updateSubject,
     deleteSubject 
 } = require('../controllers/subjectController')
+const authMiddleware = require('../middleware/authMiddleware')
 
-router.get('/', getAllSubjects)
-router.get('/:id', getSubject)
-router.post('/', addSubject)
-router.patch('/:id', updateSubject)
-router.delete('/:id', deleteSubject)
+router.get('/', authMiddleware, getAllSubjects)
+router.get('/:id', authMiddleware, getSubject)
+router.post('/', authMiddleware, addSubject)
+router.patch('/:id', authMiddleware, updateSubject)
+router.delete('/:id', authMiddleware, deleteSubject)
 
 module.exports = router
 
@@ -23,6 +24,8 @@ module.exports = router
  *   get:
  *     summary: Retrieve all subjects
  *     description: Fetches a list of all subjects from the database, including related user.
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: A list of subjects
@@ -60,6 +63,8 @@ module.exports = router
  * /subjects/{id}:
  *   get:
  *     summary: Get a single subject by ID
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -104,6 +109,8 @@ module.exports = router
  * /subjects:
  *   post:
  *     summary: Add a new subject
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -148,6 +155,8 @@ module.exports = router
  * /subjects/{id}:
  *   patch:
  *     summary: Update an existing subject
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -181,6 +190,8 @@ module.exports = router
  * /subjects/{id}:
  *   delete:
  *     summary: Delete a subject by ID
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id

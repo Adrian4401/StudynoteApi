@@ -4,8 +4,8 @@ const swaggerOptions = {
     definition: {
         info: {
             title: 'Notes API',
-            version: '0.2',
-            description: 'An API for app with notes and users.'
+            version: '1.0',
+            description: 'An API for a mobile "StudyNote" app with events, notes, subjects and users with authentication.'
         },
         openapi: '3.0.0',
     },
