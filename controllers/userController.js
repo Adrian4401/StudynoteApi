@@ -1,13 +1,9 @@
-const User = require('../models/user')
+const userService = require('../services/userService')
 
 const getUser = async (req, res) => {
     try {
-        const data = await User.findOne({
-            where: { id: req.user.id, isDeleted: false }
-        })
-
+        const data = await userService.getUser(req.user.id)
         if (!data) return res.status(404).json({ message: `User not found` })
-
         res.status(200).json(data)
     } catch (error) {
         res.status(500).json({ message: `[ERROR]: ${error.message}` })
@@ -27,10 +23,7 @@ const updateUser = async (req, res) => {
             return res.status(400).json({ message: 'No fields provided for update' })
         }
 
-        const [updatedCount] = await User.update(
-            updates,
-            { where: { id: req.user.id } }
-        )
+        const [updatedCount] = await userService.updateUser(req.user.id, updates)
 
         if (updatedCount === 0) return res.status(404).json({ message: `Failed to update account data` })
 
@@ -42,13 +35,8 @@ const updateUser = async (req, res) => {
 
 const deleteUser = async (req, res) => {
     try {
-        const [deletedCount] = await User.update(
-            { isDeleted: true },
-            { where: { id: req.user.id } }
-        )
-
+        const [deletedCount] = await userService.deleteUser(req.user.id)
         if (deletedCount === 0) return res.status(404).json({ message: `Failed to delete account` })
-
         res.status(200).json({ message: `Account deleted` })
     } catch (error) {
         res.status(500).json({ message: `[ERROR]: ${error.message}` })

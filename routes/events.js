@@ -231,9 +231,6 @@ module.exports = router
  *               subjectId:
  *                 type: integer
  *                 example: 2
- *               userId:
- *                 type: integer
- *                 example: 7
  *               noteIds:
  *                 type: array
  *                 items:

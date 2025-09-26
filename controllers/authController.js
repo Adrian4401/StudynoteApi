@@ -1,4 +1,4 @@
-const User = require('../models/user')
+const authService = require('../services/authService')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 
@@ -12,11 +12,9 @@ const register = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10)
 
     try {
-        await User.create({ username, email, password: hashedPassword })
-
+        await authService.register(username, email, hashedPassword)
         res.status(201).json({ message: `User ${username} created successfully!` })
-    } catch (error) 
-    {
+    } catch (error) {
         res.status(400).json({ message: `[ERROR] Cannot create new user => ${error.message}` })
     }
 }
@@ -29,7 +27,7 @@ const login = async (req, res) => {
     }
 
     try {
-        const user = await User.findOne({ where: { email } })
+        const user = await authService.login(email)
         if (!user) {
             return res.status(404).json({ message: 'User not found!' })
         }
