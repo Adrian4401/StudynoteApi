@@ -13,7 +13,8 @@ const register = async (req, res) => {
 
     try {
         await authService.register(username, email, hashedPassword)
-        res.status(201).json({ message: `User ${username} created successfully!` })
+        const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' })
+        res.status(201).json({ message: `User created`, token })
     } catch (error) {
         res.status(400).json({ message: `[ERROR] Cannot create new user => ${error.message}` })
     }
