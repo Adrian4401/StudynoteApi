@@ -12,7 +12,7 @@ const register = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10)
 
     try {
-        await authService.register(username, email, hashedPassword)
+        const user = await authService.register(username, email, hashedPassword)
         const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' })
         res.status(201).json({ message: `User created`, token })
     } catch (error) {
