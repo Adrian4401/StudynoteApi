@@ -21,21 +21,21 @@ const register = async (req, res) => {
 }
 
 const login = async (req, res) => {
-    const { email, password } = req.body
+    const { emailOrUsername, password } = req.body
 
-    if(!email || !password) {
-        return res.status(400).json({ message: '[FAILED] Email and password are required!' })
+    if(!emailOrUsername || !password) {
+        return res.status(400).json({ errorCode: 'MISSING_LOGIN_FIELDS' })
     }
 
     try {
-        const user = await authService.login(email)
+        const user = await authService.login(emailOrUsername)
         if (!user) {
-            return res.status(404).json({ message: 'User not found!' })
+            return res.status(404).json({ errorCode: 'USER_NOT_FOUND' })
         }
 
         const isPasswordValid = await bcrypt.compare(password, user.password)
         if (!isPasswordValid) {
-            return res.status(401).json({ message: 'Invalid password' })
+            return res.status(401).json({ errorCode: 'INVALID_PASSWORD' })
         }
 
         const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' })
