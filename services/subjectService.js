@@ -5,7 +5,11 @@ const getAllSubjects = async (userId) => {
         where: { 
             userId, 
             isDeleted: false 
-        }
+        },
+        attributes: [
+            'id',
+            'name'
+        ]
     });
 }
 
@@ -15,15 +19,21 @@ const getSubject = async (id, userId) => {
             id, 
             userId, 
             isDeleted: false 
-        }
+        },
+        attributes: [
+            'id',
+            'name'
+        ]
     });
 }
 
 const addSubject = async (name, userId) => {
-    return await Subject.create({ 
-        name, 
-        userId 
-    });
+    const subject = await Subject.create({ name, userId })
+
+    return {
+        id: subject.id,
+        name: subject.name
+    }
 }
 
 const updateSubject = async (id, name, userId) => {

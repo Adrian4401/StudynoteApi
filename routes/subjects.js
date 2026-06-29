@@ -13,7 +13,7 @@ const authMiddleware = require('../middleware/authMiddleware')
 router.get('/', authMiddleware, getAllSubjects)
 router.get('/:id', authMiddleware, getSubject)
 router.post('/', authMiddleware, addSubject)
-router.patch('/:id', authMiddleware, updateSubject)
+router.put('/:id', authMiddleware, updateSubject)
 router.delete('/:id', authMiddleware, deleteSubject)
 
 module.exports = router
