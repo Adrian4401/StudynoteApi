@@ -13,6 +13,9 @@ Note.belongsTo(User, { foreignKey: 'userId', as: 'user' })
 Subject.hasMany(Note, { foreignKey: 'subjectId', as: 'notes' })
 Note.belongsTo(Subject, { foreignKey: 'subjectId', as: 'subject' })
 
+Class.hasMany(Note, { foreignKey: 'classId', as: 'notes' })
+Note.belongsTo(Class, { foreignKey: 'classId', as: 'class' })
+
 Event.belongsToMany(Note, { through: 'EventNotes', foreignKey: 'eventId', otherKey: 'noteId', as: 'notes', timestamps: false })
 Note.belongsToMany(Event, { through: 'EventNotes', foreignKey: 'noteId', otherKey: 'eventId', as: 'events', timestamps: false })
 

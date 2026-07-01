@@ -20,6 +20,14 @@ const Note = sequelize.define('Note', {
             key: 'id'
         }
     },
+    classId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+            model: 'Classes',
+            key: 'id'
+        }
+    },
     userId: {
         type: DataTypes.INTEGER,
         allowNull: false,

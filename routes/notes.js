@@ -13,7 +13,7 @@ const authMiddleware = require('../middleware/authMiddleware')
 router.get('/', authMiddleware, getAllNotes)
 router.get('/:id', authMiddleware, getNote)
 router.post('/', authMiddleware, addNote)
-router.patch('/:id', authMiddleware, updateNote)
+router.put('/:id', authMiddleware, updateNote)
 router.delete('/:id', authMiddleware, deleteNote)
 
 module.exports = router

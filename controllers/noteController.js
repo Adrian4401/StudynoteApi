@@ -3,10 +3,10 @@ const noteService = require('../services/noteService')
 const getAllNotes = async (req, res) => {
     try {
         const data = await noteService.getAllNotes(req.user.id)
-        if (!data || data.length === 0) return res.status(200).json([])
         res.status(200).json(data)
     } catch (error) {
-        res.status(500).json({ message: `[ERROR] ${error.message}` })
+        console.log('GET ALL NOTES ERROR:', error)
+        res.status(500).json({ errorCode: 'NOTES_ALL_SERVER_ERROR' })
     }
 }
 
@@ -23,26 +23,26 @@ const getNote = async (req, res) => {
 }
 
 const addNote = async (req, res) => {
-    const { title, body, subjectId } = req.body
+    const { title, body, subjectId, classId } = req.body
 
-    if (!title || !body) return res.status(400).json({ message: '[FAILED] Title and body are required!' })
+    if (!title || title.trim().length <= 0 || !body || body.trim().length <= 0 || !subjectId || !classId) return res.status(400).json({ errorCode: 'MISSING_FIELDS' })
 
     try {
-        const newNote = await noteService.addNote(title, body, subjectId, req.user.id)
+        const newNote = await noteService.addNote(title.trim(), body.trim(), subjectId, classId, req.user.id)
         res.status(201).json(newNote)
     } catch (error) {
-        res.status(500).json({ message: `[ERROR] ${error.message}` })
+        res.status(500).json({ errorCode: 'NOTES_ADD_ERROR' })
     }
 }
 
 const updateNote = async (req, res) => {
     const { id } = req.params
-    const { title, body, subjectId } = req.body
+    const { title, body, subjectId, classId } = req.body
 
-    if (!title || !body) return res.status(400).json({ message: '[FAILED] Title and body are required!' })
+    if (!title || !body || !subjectId || !classId) return res.status(400).json({ errorCode: 'MISSING_FIELDS' })
 
     try {
-        const [updatedCount] = await noteService.updateNote(id, title, body, subjectId, req.user.id)
+        const [updatedCount] = await noteService.updateNote(id, title, body, subjectId, classId, req.user.id)
         if (updatedCount === 0) return res.status(404).json({ message: `[WARN] Note not found` })
         res.status(201).json({ message: `[INFO] Subject edited` })
     } catch (error) {
