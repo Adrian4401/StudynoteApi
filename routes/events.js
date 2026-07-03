@@ -4,7 +4,7 @@ const router = express.Router()
 const { 
     getAllEvents,
     getEvent,
-    createEvent,
+    addEvent,
     editEvent,
     deleteEvent
 } = require('../controllers/eventController')
@@ -12,7 +12,7 @@ const authMiddleware = require('../middleware/authMiddleware')
 
 router.get('/', authMiddleware, getAllEvents)
 router.get('/:id', authMiddleware, getEvent)
-router.post('/', authMiddleware, createEvent)
+router.post('/', authMiddleware, addEvent)
 router.patch('/:id', authMiddleware, editEvent)
 router.delete('/:id', authMiddleware, deleteEvent)
 

@@ -49,7 +49,7 @@ const getEvent = async (id, userId) => {
     })
 }
 
-const createEvent = async (title, description, deadline, subjectId, userId) => {
+const addEvent = async (title, description, deadline, subjectId, userId) => {
     return await Event.create({ 
         title, 
         description, 
@@ -82,4 +82,4 @@ const deleteEvent = async (id, userId) => {
     )
 }
 
-module.exports = { getAllEvents, getEvent, createEvent, editEvent, deleteEvent }
+module.exports = { getAllEvents, getEvent, addEvent, editEvent, deleteEvent }

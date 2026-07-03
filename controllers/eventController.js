@@ -23,13 +23,13 @@ const getEvent = async (req, res) => {
     }
 }
 
-const createEvent = async (req, res) => {
+const addEvent = async (req, res) => {
     const { title, description, deadline, subjectId, noteIds } = req.body
 
-    if (!title || !description || !deadline || !subjectId || !userId) return res.status(400).json({ message: '[FAILED] Title, description, deadline, subjectId and userId are required!' })
+    if (!title || !description || !deadline || !subjectId) return res.status(400).json({ message: '[FAILED] Title, description, deadline, subjectId and userId are required!' })
 
     try {
-        const newEvent = await eventService.createEvent(title, description, deadline, subjectId, req.user.id)
+        const newEvent = await eventService.addEvent(title, description, deadline, subjectId, req.user.id)
         if (noteIds && noteIds.length > 0) await newEvent.addNotes(noteIds)
         res.status(201).json(newEvent)
     } catch (error) {
@@ -65,4 +65,4 @@ const deleteEvent = async (req, res) => {
     }
 }
 
-module.exports = { getAllEvents, getEvent, createEvent, editEvent, deleteEvent }
+module.exports = { getAllEvents, getEvent, addEvent, editEvent, deleteEvent }
