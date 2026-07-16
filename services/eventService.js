@@ -65,16 +65,27 @@ const addEvent = async (title, description, deadline, subjectId, classId, userId
     })
 }
 
-const editEvent = async (id, userId, {title, description, deadline, subjectId, noteIds}) => {
+const editEvent = async (id, userId, {title, description, deadline, subjectId, classId, noteIds}) => {
     const event = await Event.findOne({ 
         where: { 
             id, 
-            userId
+            userId,
+            isDeleted: false
         } 
     })
     if (!event) return null;
-    await event.update({ title, description, deadline, subjectId, userId });
+
+    await event.update({ 
+        title, 
+        description, 
+        deadline, 
+        subjectId, 
+        classId, 
+        userId 
+    });
+
     if (Array.isArray(noteIds)) await event.setNotes(noteIds)
+
     return event;
 }
 
