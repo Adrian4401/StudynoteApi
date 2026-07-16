@@ -24,12 +24,12 @@ const getEvent = async (req, res) => {
 }
 
 const addEvent = async (req, res) => {
-    const { title, description, deadline, subjectId, noteIds } = req.body
+    const { title, description, deadline, subjectId, classId, noteIds } = req.body
 
-    if (!title || !description || !deadline || !subjectId) return res.status(400).json({ message: '[FAILED] Title, description, deadline, subjectId and userId are required!' })
+    if (!title || !description || !deadline || !subjectId || !classId) return res.status(400).json({ message: '[FAILED] Title, description, deadline, subjectId and userId are required!' })
 
     try {
-        const newEvent = await eventService.addEvent(title, description, deadline, subjectId, req.user.id)
+        const newEvent = await eventService.addEvent(title, description, deadline, subjectId, classId, req.user.id)
         if (noteIds && noteIds.length > 0) await newEvent.addNotes(noteIds)
         res.status(201).json(newEvent)
     } catch (error) {

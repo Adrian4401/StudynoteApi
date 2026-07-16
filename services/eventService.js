@@ -1,4 +1,4 @@
-const { Event, Note, Subject, User } = require('../models')
+const { Event, Note, Subject, User, Class } = require('../models')
 
 const getAllEvents = async (userId) => {
     return await Event.findAll({
@@ -30,6 +30,11 @@ const getEvent = async (id, userId) => {
                 attributes: ['name']
             },
             {
+                model: Class,
+                as: 'class',
+                attributes: ['name']
+            },
+            {
                 model: User,
                 as: 'user',
                 attributes: ['username']
@@ -49,12 +54,13 @@ const getEvent = async (id, userId) => {
     })
 }
 
-const addEvent = async (title, description, deadline, subjectId, userId) => {
+const addEvent = async (title, description, deadline, subjectId, classId, userId) => {
     return await Event.create({ 
         title, 
         description, 
         deadline, 
         subjectId, 
+        classId,
         userId 
     })
 }

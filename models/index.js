@@ -20,6 +20,7 @@ Event.belongsToMany(Note, { through: 'EventNotes', foreignKey: 'eventId', otherK
 Note.belongsToMany(Event, { through: 'EventNotes', foreignKey: 'noteId', otherKey: 'eventId', as: 'events', timestamps: false })
 
 Event.belongsTo(Subject, { foreignKey: 'subjectId', as: 'subject' })
+Event.belongsTo(Class, { foreignKey: 'classId', as: 'class' })
 Event.belongsTo(User, { foreignKey: 'userId', as: 'user' })
 
 module.exports = { Subject, Note, User, Event, Class }
