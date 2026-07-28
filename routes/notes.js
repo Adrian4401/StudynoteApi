@@ -6,7 +6,8 @@ const {
     getNote, 
     addNote,
     updateNote,
-    deleteNote
+    deleteNote,
+    analyzeNote
 } = require('../controllers/noteController')
 const authMiddleware = require('../middleware/authMiddleware')
 
@@ -15,6 +16,10 @@ router.get('/:id', authMiddleware, getNote)
 router.post('/', authMiddleware, addNote)
 router.put('/:id', authMiddleware, updateNote)
 router.delete('/:id', authMiddleware, deleteNote)
+
+// AI functions
+
+router.post('/:id/analyze', authMiddleware, analyzeNote)
 
 module.exports = router
 

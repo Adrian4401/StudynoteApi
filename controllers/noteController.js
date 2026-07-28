@@ -1,4 +1,8 @@
 const noteService = require('../services/noteService')
+const OpenAI = require('openai')
+const client = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY
+})
 
 const getAllNotes = async (req, res) => {
     try {
@@ -64,4 +68,49 @@ const deleteNote = async (req, res) => {
     }
 }
 
-module.exports = { getAllNotes, getNote, addNote, updateNote, deleteNote }
+// AI functions
+
+const analyzeNote = async (req, res) => {
+    const { id } = req.params
+
+    try {
+        const note = await noteService.getNote(id, req.user.id)
+
+        if (!note) {
+            return res.status(404).json({ errorCode: 'NOTE_NOT_FOUND' })
+        }
+
+        const response = await client.responses.create({
+            model: 'gpt-5-mini',
+            input: `
+                Przeanalizuj tę notatkę studenta i zaproponuj usprawnienia.
+                Zwróć:
+                1. krótkie podsumowanie,
+                2. co warto dopisać,
+                3. co jest niejasne,
+                4. poprawioną wersję notatki.
+
+                Tytuł: ${note.title}
+                Treść: ${note.body}
+
+                Dane zwróć w formacie json.
+            `
+        })
+
+        return res.status(200).json({
+            result: response.output_text
+        })
+    } catch (error) {
+        console.log('AI NOTE ANALYSIS ERROR: ', error)
+        return res.status(500).json({ errorCode: 'AI_NOTE_ANALYSIS_ERROR' })
+    }
+}
+
+module.exports = { 
+    getAllNotes, 
+    getNote, 
+    addNote, 
+    updateNote, 
+    deleteNote, 
+    analyzeNote 
+}
