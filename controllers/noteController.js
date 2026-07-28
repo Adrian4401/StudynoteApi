@@ -83,25 +83,55 @@ const analyzeNote = async (req, res) => {
         const response = await client.responses.create({
             model: 'gpt-5-mini',
             input: `
-                Przeanalizuj tę notatkę studenta i zaproponuj usprawnienia.
-                Zwróć:
-                1. krótkie podsumowanie,
-                2. co warto dopisać,
-                3. co jest niejasne,
-                4. poprawioną wersję notatki.
+                You are an assistant helping a student improve their study note.
 
-                Tytuł: ${note.title}
-                Treść: ${note.body}
+                Analyze the note and return ONLY valid JSON.
+                Do not use markdown.
+                Do not wrap the response in json.
+                Use exactly this structure:
 
-                Dane zwróć w formacie json.
+                {
+                "summary": "string",
+                "suggestedAdditions": ["string"],
+                "unclearParts": ["string"],
+                "improvedNote": {
+                    "title": "string",
+                    "body": "string"
+                    }
+                }
+
+                Rules:
+                - Keep the same language as the original note.
+                - Do not invent facts that are not in the note.
+                - Improve clarity, grammar, structure and usefulness.
+                - If something is missing, mention it in suggestedAdditions.
+                - improvedNote.body should be ready to replace the original note body.
+
+                Original title:
+                ${note.title}
+
+                Original note:
+                ${note.body}
             `
         })
 
-        return res.status(200).json({
-            result: response.output_text
-        })
+        let result
+
+        try {
+            result = JSON.parse(response.output_text)
+        } catch (parseError) {
+            console.log('AI JSON PARSE ERROR:', parseError)
+            return res.status(500).json({ errorCode: 'AI_INVALID_JSON_RESPONSE' })
+        }
+
+        return res.status(200).json({ result })
     } catch (error) {
         console.log('AI NOTE ANALYSIS ERROR: ', error)
+
+        if (error.code === 'insufficient_quota') {
+            return res.status(429).json({ errorCode: 'AI_INSUFFICIENT_QUOTA' })
+        }
+
         return res.status(500).json({ errorCode: 'AI_NOTE_ANALYSIS_ERROR' })
     }
 }
