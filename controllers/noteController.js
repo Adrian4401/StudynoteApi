@@ -82,6 +82,7 @@ const analyzeNote = async (req, res) => {
 
         const response = await client.responses.create({
             model: 'gpt-5-mini',
+            // model: 'gpt-5.6-luna',
             input: `
                 You are an assistant helping a student improve their study note.
 
