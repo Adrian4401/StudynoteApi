@@ -84,6 +84,17 @@ const getNote = async (id, userId) => {
     }
 }
 
+const getNotesByIds = async (noteIds, userId) => {
+    return await Note.findAll({
+        where: {
+            id: noteIds,
+            userId,
+            isDeleted: false
+        },
+        attributes: ['id', 'title', 'body', 'subjectId', 'classId']
+    })
+}
+
 const addNote = async (title, body, subjectId, classId, userId) => {
     return await Note.create({ 
         title, 
@@ -119,4 +130,4 @@ const deleteNote = async (id, userId) => {
     )
 }
 
-module.exports = { getAllNotes, getNote, addNote, updateNote, deleteNote }
+module.exports = { getAllNotes, getNote, getNotesByIds, addNote, updateNote, deleteNote }

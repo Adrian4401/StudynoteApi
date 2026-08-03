@@ -11,6 +11,7 @@ const noteRoutes = require('./routes/notes')
 const subjectRoutes = require('./routes/subjects')
 const eventRoutes = require('./routes/events')
 const classRoutes = require('./routes/class')
+const testsRoutes = require('./routes/tests')
 
 const app = express()
 
@@ -39,6 +40,7 @@ app.use('/notes', noteRoutes)
 app.use('/subjects', subjectRoutes)
 app.use('/events', eventRoutes)
 app.use('/classes', classRoutes)
+app.use('/tests', testsRoutes)
 
 app.listen(PORT, () => {
     console.log('Server is running on port 8080! See http://localhost:8080/api-docs for API documentation.')
