@@ -100,4 +100,75 @@ const generateSubjectTest = async (req, res) => {
     }
 }
 
-module.exports = { generateSubjectTest }
+const checkOpenAnswers = async (req, res) => {
+    const { openAnswers } = req.body
+
+    if (!Array.isArray(openAnswers) || openAnswers.length === 0) {
+        return res.status(400).json({ errorCode: 'OPEN_ANSWERS_MISSING_FIELDS' })
+    }
+
+    try {
+        const response = await client.responses.create({
+            model: process.env.OPENAI_TEST_MODEL || 'gpt-5-mini',
+            input: `
+                Oceń odpowiedzi użytkownika na pytania otwarte.
+
+                Zasady oceniania:
+                - Każda odpowiedź ma score od 0 do 1.
+                - 1 oznacza odpowiedź w pełni poprawną.
+                - 0.5 oznacza odpowiedź częściowo poprawną.
+                - 0 oznacza odpowiedź błędną albo pustą.
+                - Bądź sprawiedliwy: nie wymagaj identycznych słów jak we wzorcowej odpowiedzi.
+                - Jeśli sens odpowiedzi użytkownika zgadza się z oczekiwaną odpowiedzią, daj wysoki wynik.
+                - Daj krótką informację zwrotną po polsku.
+
+                Odpowiedzi do oceny:
+                ${JSON.stringify(openAnswers, null, 2)}
+            `,
+            text: {
+                format: {
+                    type: 'json_schema',
+                    name: 'open_answers_check',
+                    strict: true,
+                    schema: {
+                        type: 'object',
+                        additionalProperties: false,
+                        properties: {
+                            results: {
+                                type: 'array',
+                                items: {
+                                    type: 'object',
+                                    additionalProperties: false,
+                                    properties: {
+                                        questionId: { type: 'string' },
+                                        score: { type: 'number' },
+                                        maxScore: { type: 'number' },
+                                        isCorrect: { type: 'boolean' },
+                                        feedback: { type: 'string' }
+                                    },
+                                    required: [
+                                        'questionId',
+                                        'score',
+                                        'maxScore',
+                                        'isCorrect',
+                                        'feedback'
+                                    ]
+                                }
+                            }
+                        },
+                        required: ['results']
+                    }
+                }
+            }
+        })
+
+        const result = JSON.parse(response.output_text)
+
+        return res.status(200).json(result)
+    } catch (error) {
+        console.log('CHECK OPEN ANSWERS ERROR:', error)
+        return res.status(500).json({ errorCode: 'OPEN_ANSWERS_CHECK_ERROR' })
+    }
+}
+
+module.exports = { generateSubjectTest, checkOpenAnswers }
