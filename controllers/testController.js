@@ -33,13 +33,22 @@ const generateSubjectTest = async (req, res) => {
                 Dozwolone typy pytań: ${questionTypes.join(', ')}
 
                 Zasady:
-                - Pytania mają wynikać wyłącznie z notatek.
-                - Nie wymyślaj faktów spoza notatek.
+                - Pytania mają wynikać TYLKO z faktów i informacji zawartych w notatkach.
+                - Nie dodawaj żadnych informacji, które nie wynikają z notatek.
+                - Formułuj pytania tak, jakby test sprawdzał wiedzę studenta, a nie pamięć treści notatek.
+                - Nie używaj sformułowań typu: "czy w notatkach stwierdzono", "według notatek", "na podstawie notatek", "w tekście napisano", "autor napisał".
+                - Pytania mają dotyczyć bezpośrednio faktów, pojęć, definicji i zależności z materiału.
                 - Dla single_choice dokładnie jedna odpowiedź ma isCorrect true.
                 - Dla multiple_choice jedna lub więcej odpowiedzi może mieć isCorrect true.
                 - Dla true_false zwróć dwie odpowiedzi: true i false.
                 - Dla open zwróć expectedAnswer zamiast answers.
                 - Każde pytanie musi mieć explanation.
+
+                Przykład złego pytania:
+                "Czy w notatkach stwierdzono, że Blender jest programem płatnym?"
+
+                Przykład dobrego pytania:
+                "Czy Blender jest programem płatnym?"
 
                 Notatki:
                 ${notesText}
@@ -120,7 +129,7 @@ const checkOpenAnswers = async (req, res) => {
                 - 0 oznacza odpowiedź błędną albo pustą.
                 - Bądź sprawiedliwy: nie wymagaj identycznych słów jak we wzorcowej odpowiedzi.
                 - Jeśli sens odpowiedzi użytkownika zgadza się z oczekiwaną odpowiedzią, daj wysoki wynik.
-                - Daj krótką informację zwrotną po polsku.
+                - Daj krótką informację zwrotną w języku aplikacji.
 
                 Odpowiedzi do oceny:
                 ${JSON.stringify(openAnswers, null, 2)}

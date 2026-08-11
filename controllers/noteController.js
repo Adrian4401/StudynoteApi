@@ -104,6 +104,8 @@ const analyzeNote = async (req, res) => {
                 Rules:
                 - Keep the same language as the original note.
                 - Do not invent facts that are not in the note.
+                - Correct any information in the note that is factually incorrect.
+                - Add information to the note only if it relates to facts already present.
                 - Improve clarity, grammar, structure and usefulness.
                 - If something is missing, mention it in suggestedAdditions.
                 - improvedNote.body should be ready to replace the original note body.
