@@ -20,4 +20,17 @@ const login = async (emailOrUsername) => {
     })
 }
 
-module.exports = { register, login }
+const getUserById = async (id) => {
+    return await User.findOne({
+        where: { id }
+    })
+}
+
+const changePassword = async (id, password) => {
+    return await User.update(
+        { password },
+        { where: { id } }
+    )
+}
+
+module.exports = { register, login, getUserById, changePassword }

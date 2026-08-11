@@ -54,4 +54,39 @@ const login = async (req, res) => {
     }
 }
 
-module.exports = { register, login }
+const changePassword = async (req, res) => {
+    const { currentPassword, newPassword } = req.body
+
+    if (!currentPassword || !newPassword) {
+        return res.status(400).json({ errorCode: 'PASSWORD_MISSING_FIELDS' })
+    }
+
+    if (newPassword.length < 6) {
+        return res.status(400).json({ errorCode: 'PASSWORD_TOO_SHORT' })
+    }
+
+    try {
+        const user = await authService.getUserById(req.user.id)
+
+        if (!user) {
+            return res.status(404).json({ errorCode: 'USER_NOT_FOUND' })
+        }
+
+        const isPasswordValid = await bcrypt.compare(currentPassword, user.password)
+
+        if (!isPasswordValid) {
+            return res.status(401).json({ errorCode: 'INVALID_CURRENT_PASSWORD' })
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10)
+
+        await authService.changePassword(req.user.id, hashedPassword)
+
+        return res.status(200).json({ message: 'Password changed' })
+    } catch (error) {
+        console.log('CHANGE PASSWORD ERROR:', error)
+        return res.status(500).json({ errorCode: 'PASSWORD_CHANGE_ERROR' })
+    }
+}
+
+module.exports = { register, login, changePassword }
