@@ -89,6 +89,9 @@ const generateSubjectTest = async (req, res) => {
             Dozwolone typy pytań: ${selectedQuestionTypes.join(', ')}
 
             Zasady:
+            - MUSISZ wygenerować dokładnie ${parsedQuestionsCount} pytań.
+            - Tablica questions NIE MOŻE być pusta.
+            - Jeśli notatki są krótkie, wygeneruj prostsze pytania, ale nadal dokładnie ${parsedQuestionsCount}.
             - Pytania mają wynikać TYLKO z treści notatek.
             - Nie dodawaj żadnych informacji, których nie da się wywnioskować z notatek.
             - Pytania formułuj jak normalne pytania egzaminacyjne, a nie pytania o same notatki.
@@ -111,8 +114,12 @@ const generateSubjectTest = async (req, res) => {
             schema: subjectTestSchema
         })
 
+        if (!result.questions || result.questions.length === 0) {
+            return res.status(500).json({ errorCode: 'AI_EMPTY_TEST_RESPONSE' })
+        }
+
         return res.status(200).json({
-            questions: ensureQuestionsHaveQuestionMark(result.questions || [])
+            questions: ensureQuestionsHaveQuestionMark(result.questions)
         })
     } catch (error) {
         console.log('GENERATE SUBJECT TEST ERROR:', error)

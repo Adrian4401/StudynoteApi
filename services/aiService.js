@@ -40,13 +40,13 @@ const generateWithOpenAI = async ({ prompt, schemaName, schema }) => {
     return JSON.parse(response.output_text)
 }
 
-const generateWithGemini = async ({ prompt }) => {
+const generateWithGemini = async ({ prompt, schema }) => {
     const response = await gemini.models.generateContent({
-        model: process.env.GEMINI_MODEL || 'gemini-2.5-flash-lite',
+        model: process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite',
         contents: prompt,
         config: {
             responseMimeType: 'application/json',
-            temperature: 0.2
+            responseSchema: schema
         }
     })
 
@@ -55,7 +55,7 @@ const generateWithGemini = async ({ prompt }) => {
 
 const generateJson = async ({ prompt, schemaName, schema }) => {
     if (process.env.AI_PROVIDER === 'gemini') {
-        return await generateWithGemini({ prompt })
+        return await generateWithGemini({ prompt, schema })
     }
 
     return await generateWithOpenAI({
