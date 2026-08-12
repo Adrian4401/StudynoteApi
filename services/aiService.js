@@ -25,7 +25,7 @@ const getJsonFromText = (text) => {
 
 const generateWithOpenAI = async ({ prompt, schemaName, schema }) => {
     const response = await openai.responses.create({
-        model: process.env.OPENAI_TEST_MODEL || 'gpt-5-mini',
+        model: process.env.OPENAI_MODEL || 'gpt-5-mini',
         input: prompt,
         text: {
             format: {
