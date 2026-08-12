@@ -4,6 +4,8 @@ const {
     subjectTestSchema,
     openAnswersCheckSchema
 } = require('../schemas/testSchemas')
+const testResultService = require('../services/testResultService')
+
 
 const allowedQuestionTypes = [
     'single_choice',
@@ -177,7 +179,95 @@ const checkOpenAnswers = async (req, res) => {
     }
 }
 
+const getTestHistory = async (req, res) => {
+    try {
+        const data = await testResultService.getTestHistory(req.user.id)
+
+        return res.status(200).json(data.map((test) => ({
+            id: test.id,
+            title: test.title,
+            score: test.score,
+            maxScore: test.maxScore,
+            percentage: test.percentage,
+            createdAt: test.createdAt,
+            subject_id: test.subject?.id,
+            subject_name: test.subject?.name
+        })))
+    } catch (error) {
+        return res.status(500).json({ errorCode: 'TEST_HISTORY_ERROR' })
+    }
+}
+
+const getTestResult = async (req, res) => {
+    const { id } = req.params
+
+    try {
+        const data = await testResultService.getTestResult(id, req.user.id)
+
+        if (!data) return res.status(404).json({ errorCode: 'TEST_RESULT_NOT_FOUND' })
+
+        return res.status(200).json(data)
+    } catch (error) {
+        return res.status(500).json({ errorCode: 'TEST_RESULT_ERROR' })
+    }
+}
+
+const addTestResult = async (req, res) => {
+    const {
+        title,
+        score,
+        maxScore,
+        percentage,
+        questions,
+        userAnswers,
+        openAnswersResults,
+        subjectId,
+        noteIds
+    } = req.body
+
+    if (!subjectId || !Array.isArray(noteIds) || noteIds.length === 0 || !Array.isArray(questions) || !userAnswers) {
+        return res.status(400).json({ errorCode: 'MISSING_FIELDS' })
+    }
+
+    try {
+        const data = await testResultService.addTestResult({
+            title: title || `Test ${percentage}%`,
+            score,
+            maxScore,
+            percentage,
+            questions,
+            userAnswers,
+            openAnswersResults: openAnswersResults || [],
+            subjectId,
+            noteIds,
+            userId: req.user.id
+        })
+
+        return res.status(201).json(data)
+    } catch (error) {
+        return res.status(500).json({ errorCode: 'TEST_RESULT_ADD_ERROR' })
+    }
+}
+
+const deleteTestResult = async (req, res) => {
+    const { id } = req.params
+
+    try {
+        const [deletedCount] = await testResultService.deleteTestResult(id, req.user.id)
+
+        if (deletedCount === 0) return res.status(404).json({ errorCode: 'TEST_RESULT_NOT_FOUND' })
+
+        return res.status(200).json({ message: 'Test deleted' })
+    } catch (error) {
+        return res.status(500).json({ errorCode: 'TEST_RESULT_DELETE_ERROR' })
+    }
+}
+
 module.exports = {
     generateSubjectTest,
-    checkOpenAnswers
+    checkOpenAnswers,
+    getTestHistory,
+    getTestResult,
+    addTestResult,
+    deleteTestResult
 }

@@ -3,6 +3,8 @@ const Note = require('./note')
 const User = require('./user')
 const Event = require('./event')
 const Class = require('./class')
+const TestResult = require('./testResult')
+const TestResultNote = require('./testResultNote')
 
 User.hasMany(Subject, { foreignKey: 'userId', as: 'subjects' })
 Subject.belongsTo(User, { foreignKey: 'userId', as: 'user' })
@@ -23,4 +25,14 @@ Event.belongsTo(Subject, { foreignKey: 'subjectId', as: 'subject' })
 Event.belongsTo(Class, { foreignKey: 'classId', as: 'class' })
 Event.belongsTo(User, { foreignKey: 'userId', as: 'user' })
 
-module.exports = { Subject, Note, User, Event, Class }
+User.hasMany(TestResult, { foreignKey: 'userId', as: 'testResults' })
+TestResult.belongsTo(User, { foreignKey: 'userId', as: 'user' })
+
+Subject.hasMany(TestResult, { foreignKey: 'subjectId', as: 'testResults' })
+TestResult.belongsTo(Subject, { foreignKey: 'subjectId', as: 'subject' })
+
+TestResult.belongsToMany(Note, {through: 'TestResultNotes', foreignKey: 'testResultId', otherKey: 'noteId', as: 'notes', timestamps: false})
+
+Note.belongsToMany(TestResult, {through: 'TestResultNotes', foreignKey: 'noteId', otherKey: 'testResultId', as: 'testResults', timestamps: false })
+
+module.exports = { Subject, Note, User, Event, Class, TestResult, TestResultNote }

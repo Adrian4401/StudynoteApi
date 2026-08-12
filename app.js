@@ -5,6 +5,16 @@ const swaggerDocs = require('./swagger/swaggerConfig')
 const sequelize = require('./config/database')
 
 const PORT = 8080
+
+require('./models/note')
+require('./models/user')
+require('./models/subject')
+require('./models/event')
+require('./models/eventNote')
+require('./models/class')
+require('./models/testResult')
+require('./models/testResultNote')
+
 const authRoutes = require('./routes/auth')
 const userRoutes = require('./routes/users')
 const noteRoutes = require('./routes/notes')
@@ -14,13 +24,6 @@ const classRoutes = require('./routes/class')
 const testsRoutes = require('./routes/tests')
 
 const app = express()
-
-require('./models/note')
-require('./models/user')
-require('./models/subject')
-require('./models/event')
-require('./models/eventNote')
-require('./models/class')
 
 sequelize.sync()
     .then(() => {
