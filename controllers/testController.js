@@ -1,183 +1,176 @@
-const OpenAI = require('openai')
 const noteService = require('../services/noteService')
+const { generateJson } = require('../services/aiService')
+const {
+    subjectTestSchema,
+    openAnswersCheckSchema
+} = require('../schemas/testSchemas')
 
-const client = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY
-})
+const allowedQuestionTypes = [
+    'single_choice',
+    'multiple_choice',
+    'true_false',
+    'open'
+]
+
+const ensureQuestionsHaveQuestionMark = (questions) => {
+    return questions.map((question) => {
+        const trimmedQuestion = question.question.trim()
+
+        return {
+            ...question,
+            question: trimmedQuestion.endsWith('?')
+                ? trimmedQuestion
+                : `${trimmedQuestion}?`
+        }
+    })
+}
+
+const normalizeQuestionTypes = (questionTypes) => {
+    if (!Array.isArray(questionTypes)) {
+        return []
+    }
+
+    return questionTypes.filter((type) => allowedQuestionTypes.includes(type))
+}
 
 const generateSubjectTest = async (req, res) => {
-    const { subjectId, noteIds, questionsCount, questionTypes } = req.body
+    const {
+        noteIds,
+        questionsCount,
+        questionTypes
+    } = req.body
 
-    if (!subjectId || !Array.isArray(noteIds) || noteIds.length === 0 || !questionsCount || !Array.isArray(questionTypes) || questionTypes.length === 0) {
-        return res.status(400).json({ errorCode: 'TEST_MISSING_FIELDS' })
+    if (
+        !Array.isArray(noteIds) ||
+        noteIds.length === 0 ||
+        !questionsCount ||
+        !Array.isArray(questionTypes) ||
+        questionTypes.length === 0
+    ) {
+        return res.status(400).json({ errorCode: 'MISSING_FIELDS' })
+    }
+
+    const selectedQuestionTypes = normalizeQuestionTypes(questionTypes)
+
+    if (selectedQuestionTypes.length === 0) {
+        return res.status(400).json({ errorCode: 'INVALID_QUESTION_TYPES' })
+    }
+
+    const parsedQuestionsCount = Number(questionsCount)
+
+    if (
+        Number.isNaN(parsedQuestionsCount) ||
+        parsedQuestionsCount < 5 ||
+        parsedQuestionsCount > 20
+    ) {
+        return res.status(400).json({ errorCode: 'INVALID_QUESTIONS_COUNT' })
     }
 
     try {
         const notes = await noteService.getNotesByIds(noteIds, req.user.id)
 
         if (!notes || notes.length === 0) {
-            return res.status(404).json({ errorCode: 'TEST_NOTES_NOT_FOUND' })
+            return res.status(404).json({ errorCode: 'NOTES_NOT_FOUND' })
         }
 
-        const notesText = notes.map(note => `
-            Tytuł: ${note.title}
-            Treść: ${note.body}
-        `).join('\n---\n')
+        const notesText = notes.map((note, index) => {
+            return `
+                Notatka ${index + 1}
+                Tytuł: ${note.title}
+                Treść:
+                ${note.body}
+            `
+        }).join('\n')
 
-        const response = await client.responses.create({
-            model: process.env.OPENAI_TEST_MODEL || 'gpt-5-mini',
-            input: `
-                Na podstawie poniższych notatek wygeneruj test dla studenta.
+        const prompt = `
+            Na podstawie poniższych notatek wygeneruj test dla studenta.
 
-                Liczba pytań: ${questionsCount}
-                Dozwolone typy pytań: ${questionTypes.join(', ')}
+            Liczba pytań: ${parsedQuestionsCount}
+            Dozwolone typy pytań: ${selectedQuestionTypes.join(', ')}
 
-                Zasady:
-                - Pytania mają wynikać TYLKO z faktów i informacji zawartych w notatkach.
-                - Nie dodawaj żadnych informacji, które nie wynikają z notatek.
-                - Formułuj pytania tak, jakby test sprawdzał wiedzę studenta, a nie pamięć treści notatek.
-                - Nie używaj sformułowań typu: "czy w notatkach stwierdzono", "według notatek", "na podstawie notatek", "w tekście napisano", "autor napisał".
-                - Pytania mają dotyczyć bezpośrednio faktów, pojęć, definicji i zależności z materiału.
-                - Dla single_choice dokładnie jedna odpowiedź ma isCorrect true.
-                - Dla multiple_choice jedna lub więcej odpowiedzi może mieć isCorrect true.
-                - Dla true_false zwróć dwie odpowiedzi: true i false.
-                - Dla open zwróć expectedAnswer zamiast answers.
-                - Każde pytanie musi mieć explanation.
+            Zasady:
+            - Pytania mają wynikać TYLKO z treści notatek.
+            - Nie dodawaj żadnych informacji, których nie da się wywnioskować z notatek.
+            - Pytania formułuj jak normalne pytania egzaminacyjne, a nie pytania o same notatki.
+            - Nie używaj sformułowań typu: "czy w notatkach stwierdzono", "według notatek", "na podstawie notatek".
+            - Pole "question" zawsze musi być pytaniem i zawsze musi kończyć się znakiem zapytania.
+            - Dla single_choice dokładnie jedna odpowiedź ma isCorrect true.
+            - Dla multiple_choice jedna lub więcej odpowiedzi może mieć isCorrect true.
+            - Dla true_false zwróć dokładnie dwie odpowiedzi: true i false.
+            - Dla open zwróć answers jako pustą tablicę oraz expectedAnswer jako wzorcową odpowiedź.
+            - Każde pytanie musi mieć explanation.
+            - Zwróć wyłącznie poprawny JSON zgodny ze schematem.
 
-                Przykład złego pytania:
-                "Czy w notatkach stwierdzono, że Blender jest programem płatnym?"
+            Notatki:
+            ${notesText}
+        `
 
-                Przykład dobrego pytania:
-                "Czy Blender jest programem płatnym?"
-
-                Notatki:
-                ${notesText}
-            `,
-            text: {
-                format: {
-                    type: 'json_schema',
-                    name: 'subject_test',
-                    strict: true,
-                    schema: {
-                        type: 'object',
-                        additionalProperties: false,
-                        properties: {
-                            questions: {
-                                type: 'array',
-                                items: {
-                                    type: 'object',
-                                    additionalProperties: false,
-                                    properties: {
-                                        id: { type: 'string' },
-                                        type: {
-                                            type: 'string',
-                                            enum: ['true_false', 'single_choice', 'multiple_choice', 'open']
-                                        },
-                                        question: { type: 'string' },
-                                        answers: {
-                                            type: 'array',
-                                            items: {
-                                                type: 'object',
-                                                additionalProperties: false,
-                                                properties: {
-                                                    id: { type: 'string' },
-                                                    text: { type: 'string' },
-                                                    isCorrect: { type: 'boolean' }
-                                                },
-                                                required: ['id', 'text', 'isCorrect']
-                                            }
-                                        },
-                                        expectedAnswer: { type: 'string' },
-                                        explanation: { type: 'string' }
-                                    },
-                                    required: ['id', 'type', 'question', 'answers', 'expectedAnswer', 'explanation']
-                                }
-                            }
-                        },
-                        required: ['questions']
-                    }
-                }
-            }
+        const result = await generateJson({
+            prompt,
+            schemaName: 'subject_test',
+            schema: subjectTestSchema
         })
 
-        const result = JSON.parse(response.output_text)
-
-        return res.status(200).json(result)
+        return res.status(200).json({
+            questions: ensureQuestionsHaveQuestionMark(result.questions || [])
+        })
     } catch (error) {
         console.log('GENERATE SUBJECT TEST ERROR:', error)
-        return res.status(500).json({ errorCode: 'TEST_GENERATE_ERROR' })
+        return res.status(500).json({ errorCode: 'GENERATE_TEST_ERROR' })
     }
 }
 
 const checkOpenAnswers = async (req, res) => {
-    const { openAnswers } = req.body
+    const { answers } = req.body
 
-    if (!Array.isArray(openAnswers) || openAnswers.length === 0) {
-        return res.status(400).json({ errorCode: 'OPEN_ANSWERS_MISSING_FIELDS' })
+    if (!Array.isArray(answers) || answers.length === 0) {
+        return res.status(400).json({ errorCode: 'MISSING_FIELDS' })
     }
 
     try {
-        const response = await client.responses.create({
-            model: process.env.OPENAI_TEST_MODEL || 'gpt-5-mini',
-            input: `
-                Oceń odpowiedzi użytkownika na pytania otwarte.
+        const answersText = answers.map((answer, index) => {
+            return `
+                Odpowiedź ${index + 1}
+                ID pytania: ${answer.questionId}
+                Pytanie: ${answer.question}
+                Odpowiedź użytkownika: ${answer.userAnswer}
+                Odpowiedź wzorcowa: ${answer.expectedAnswer}
+                Wyjaśnienie: ${answer.explanation}
+            `
+        }).join('\n')
 
-                Zasady oceniania:
-                - Każda odpowiedź ma score od 0 do 1.
-                - 1 oznacza odpowiedź w pełni poprawną.
-                - 0.5 oznacza odpowiedź częściowo poprawną.
-                - 0 oznacza odpowiedź błędną albo pustą.
-                - Bądź sprawiedliwy: nie wymagaj identycznych słów jak we wzorcowej odpowiedzi.
-                - Jeśli sens odpowiedzi użytkownika zgadza się z oczekiwaną odpowiedzią, daj wysoki wynik.
-                - Daj krótką informację zwrotną w języku aplikacji.
+        const prompt = `
+            Sprawdź odpowiedzi otwarte użytkownika.
 
-                Odpowiedzi do oceny:
-                ${JSON.stringify(openAnswers, null, 2)}
-            `,
-            text: {
-                format: {
-                    type: 'json_schema',
-                    name: 'open_answers_check',
-                    strict: true,
-                    schema: {
-                        type: 'object',
-                        additionalProperties: false,
-                        properties: {
-                            results: {
-                                type: 'array',
-                                items: {
-                                    type: 'object',
-                                    additionalProperties: false,
-                                    properties: {
-                                        questionId: { type: 'string' },
-                                        score: { type: 'number' },
-                                        maxScore: { type: 'number' },
-                                        isCorrect: { type: 'boolean' },
-                                        feedback: { type: 'string' }
-                                    },
-                                    required: [
-                                        'questionId',
-                                        'score',
-                                        'maxScore',
-                                        'isCorrect',
-                                        'feedback'
-                                    ]
-                                }
-                            }
-                        },
-                        required: ['results']
-                    }
-                }
-            }
+            Zasady:
+            - Oceń każdą odpowiedź w skali od 0 do 1 punktu.
+            - Przyznaj 1 punkt, jeśli odpowiedź jest merytorycznie poprawna.
+            - Przyznaj 0.5 punktu, jeśli odpowiedź jest częściowo poprawna.
+            - Przyznaj 0 punktów, jeśli odpowiedź jest błędna, pusta lub nie odpowiada na pytanie.
+            - Nie wymagaj identycznego brzmienia jak odpowiedź wzorcowa.
+            - Zwróć krótką informację zwrotną.
+            - Zwróć wyłącznie poprawny JSON zgodny ze schematem.
+
+            Odpowiedzi:
+            ${answersText}
+        `
+
+        const result = await generateJson({
+            prompt,
+            schemaName: 'open_answers_check',
+            schema: openAnswersCheckSchema
         })
 
-        const result = JSON.parse(response.output_text)
-
-        return res.status(200).json(result)
+        return res.status(200).json({
+            results: result.results || []
+        })
     } catch (error) {
         console.log('CHECK OPEN ANSWERS ERROR:', error)
-        return res.status(500).json({ errorCode: 'OPEN_ANSWERS_CHECK_ERROR' })
+        return res.status(500).json({ errorCode: 'CHECK_OPEN_ANSWERS_ERROR' })
     }
 }
 
-module.exports = { generateSubjectTest, checkOpenAnswers }
+module.exports = {
+    generateSubjectTest,
+    checkOpenAnswers
+}
